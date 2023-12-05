@@ -1,0 +1,68 @@
+@description('Existing Azure Spring Apps instance name.')
+param name string
+
+resource spring_resource 'Microsoft.AppPlatform/Spring@2022-12-01' existing = {
+    name: name
+}
+
+resource apps_bigapp 'Microsoft.AppPlatform/Spring/Apps@2022-12-01'  = {
+    name: 'bigapp'
+    parent: spring_resource
+    properties: {
+      public : true
+    }
+}
+
+resource deployments_bigapp 'Microsoft.AppPlatform/Spring/Apps/Deployments@2022-12-01'  = {
+    name: 'bigapp'
+    parent: apps_bigapp
+    properties: {
+      active : true
+      deploymentSettings : {
+        resourceRequests : {
+          cpu : '1'
+          memory : '1Gi'
+        }
+      }
+      source : {
+        type : 'Container'
+        customContainer : {
+          server : 'mcr.microsoft.com'
+          containerImage : 'azurespringapps/samples/hello-world:0.0.1'
+        }
+      }
+    }
+    sku : {
+      tier : 'Enterprise'
+      name : 'E0'
+      capacity : 1
+    }
+}
+
+resource apps_smallapp 'Microsoft.AppPlatform/Spring/Apps@2022-12-01'  = {
+    name: 'smallapp'
+    parent: spring_resource
+}
+
+resource deployments_smallapp 'Microsoft.AppPlatform/Spring/Apps/Deployments@2022-12-01'  = {
+    name: 'smallapp'
+    parent: apps_smallapp
+    properties: {
+      active : true
+      deploymentSettings : {
+        resourceRequests : {
+          cpu : '1'
+          memory : '512Mi'
+        }
+      }
+      source : {
+        type : 'BuildResult'
+        buildResultId : '<default>'
+      }
+    }
+    sku : {
+      tier : 'Enterprise'
+      name : 'E0'
+      capacity : 1
+    }
+}

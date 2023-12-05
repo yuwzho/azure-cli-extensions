@@ -118,6 +118,11 @@ def load_command_table(self, _):
         client_factory=cf_spring
     )
 
+    manifest_transformer = CliCommandType(
+        operations_tmpl='azext_spring.manifest_transformer.manifest_transformer#{}',
+        client_factory=cf_spring
+    )
+
     with self.command_group('spring', custom_command_type=spring_routing_util,
                             exception_handler=handle_asc_exception) as g:
         g.custom_command('create', 'spring_create', supports_no_wait=True)
@@ -137,6 +142,10 @@ def load_command_table(self, _):
         g.custom_command('list', 'spring_list', table_transformer=transform_spring_table_output)
         g.custom_show_command('show', 'spring_get', table_transformer=transform_spring_table_output)
         g.custom_command('flush-virtualnetwork-dns-settings', 'spring_flush_vnet_dns_setting', is_preview=True, supports_no_wait=True)
+
+    with self.command_group('spring', custom_command_type=manifest_transformer,
+                            exception_handler=handle_asc_exception) as g:
+        g.custom_command('import-manifest', 'import_manifest', is_experimental=True)
 
     with self.command_group('spring test-endpoint', client_factory=cf_spring,
                             exception_handler=handle_asc_exception) as g:

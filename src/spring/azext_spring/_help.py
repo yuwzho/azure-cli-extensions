@@ -1531,3 +1531,8 @@ helps['spring apm disable-globally'] = """
         - name: Disable an APM globally.
           text: az spring apm disable-globally --name first-apm --service MyCluster --resource-group MyResourceGroup
 """
+
+helps['spring import-manifest'] = """
+    type: command
+    short-summary: Import manifest and translate it to manifest can be applied to Azure Spring Apps.
+"""

@@ -255,6 +255,12 @@ def load_arguments(self, _):
         with self.argument_context(scope) as c:
             c.argument('tags', arg_type=tags_type)
 
+    with self.argument_context('spring import-manifest') as c:
+        c.argument('source', options_list=['--source', '-s'],
+                   type=str, help='Source file path of the manifest.')
+        c.argument('dest', options_list=['--dest', '-d'],
+                   type=str, help='Destination file path. The command will create or over write the file.')
+
     with self.argument_context('spring test-endpoint renew-key') as c:
         c.argument('type', type=str, arg_type=get_enum_type(
             TestKeyType), help='Type of test-endpoint key')
