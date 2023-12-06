@@ -46,3 +46,7 @@ There is a roundtrip test against folder `src\spring\azext_spring\tests\latest\p
 If you want to map a value in PCF manifest to Bicep resource file, 
 1. You can reference the `ResourceRequestTransformer` to map the `cpu` `memory` to `Deployment.properties.deploymentSettings.resourceRequests` to create your own transformer.
 2. Add the Transformer to `transformer_loader`
+
+# TODOs
+- Warning on properies on PCF manifest but not processed.
+- [Optional] Can abstract the get and `put_properties`? The transformer can just fulfill the source property and dest property with 2 string.
