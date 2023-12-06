@@ -13,3 +13,6 @@ applications:
   no-route: True
   memory: 512M
   path: /fake/path
+  env:
+    foo: bar
+    bas: baz

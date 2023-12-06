@@ -9,6 +9,7 @@ from ._app_transformer import AppTransformer
 from ._resource_request_transformer import CPUResourceRequestTransformer, MemoryResourceRequestTransformer, SkuCapacityTransformer
 from ._source_transformer import SourceTransformer
 from ._public_endpoint_transformer import PublicEndpointTransformer
+from ._env_transformer import EnvTransformer
 from .bicep_resource import BicepFile
 
 def get_transformers(source_type, dest_type):
@@ -19,7 +20,8 @@ def get_transformers(source_type, dest_type):
             MemoryResourceRequestTransformer(source_type, dest_type),
             SkuCapacityTransformer(source_type, dest_type),
             SourceTransformer(source_type, dest_type),
-            PublicEndpointTransformer(source_type, dest_type)
+            EnvTransformer(source_type, dest_type),
+            PublicEndpointTransformer(source_type, dest_type),
         ]
     raise AttributeError('Cannot find transformers to transform from {} to {}'.format(source_type, dest_type))
 

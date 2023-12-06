@@ -54,6 +54,10 @@ resource deployments_smallapp 'Microsoft.AppPlatform/Spring/Apps/Deployments@202
           cpu : '1'
           memory : '512Mi'
         }
+        environmentVariables : {
+          foo : 'bar'
+          bas : 'baz'
+        }
       }
       source : {
         type : 'BuildResult'
