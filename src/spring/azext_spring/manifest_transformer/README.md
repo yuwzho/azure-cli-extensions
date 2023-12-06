@@ -46,8 +46,11 @@ There is a roundtrip test against folder `src\spring\azext_spring\tests\latest\p
 
 # Contribution
 If you want to map a value in PCF manifest to Bicep resource file, 
-1. You can reference the `_resource_request_transformer.py` to map the `cpu` `memory` to `deployment.properties.deploymentSettings.resourceRequests` to create your own transformer.
+1. You can reference the `_env_transformer.py` to map the `deployment.properties.deploymentSettings.environmentVariables` to create your own transformer.
 2. Add the Transformer to `transformer_loader`
+3. Update the test
+
+Sample commit https://github.com/yuwzho/azure-cli-extensions/commit/a2aedb2e6f137a9852660fead746376b4f138f0e
 
 # TODOs
 - Warning on properies on PCF manifest but not processed.
