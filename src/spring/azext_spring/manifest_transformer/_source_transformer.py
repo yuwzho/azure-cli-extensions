@@ -8,42 +8,38 @@
 import os
 from knack.log import get_logger
 
-from .base_transformer import Transformer
+from .base_transformer import PCFToBicepAppTransformer, BicepResourceType
 
 logger = get_logger(__name__)
 
 DOCKER_PASSWORD_ENV_KEY = 'CF_DOCKER_PASSWORD'
 
-class SourceTransformer(Transformer):
+class SourceTransformer(PCFToBicepAppTransformer):
+    @property
+    def _bicep_resource_type(self):
+        return BicepResourceType.Deployment.value
+
+    @property
+    def _bicep_path(self):
+        return 'source'
 
     def _check_pcf_to_bicep_violation(self, input, **__):
         for app in input.get('applications', []):
             self._check_path(app)
             self._check_docker_password(app)
-    
-    def _pcf_to_bicep(self, input, output, **__):
-        for app in input.get('applications', []):
-            resource = output.find('Microsoft.AppPlatform/Spring/Apps/Deployments', app.get('name', ''))
-            if not resource:
-                raise KeyError(f'Cannot find deployment resource {app.get("name")} in Bicep resources')
-            self._parse_docker(app, resource)
-            self._fallback(resource)
 
-    def _parse_docker(self, app, resource):
+    def _find_value_from_pcf(self, app):
         docker = self._get_docker(app)
         if docker:
-            resource.put_properties('source', {
+            return {
                 'type': 'Container',
                 'customContainer': docker
-            })
-    
-    def _fallback(self, resource):
-        if resource.get_property('source'):
-            return
-        resource.put_properties('source', {
-            'type': 'BuildResult',
-            'buildResultId': '<default>'
-        })
+            }
+        else:
+            return {
+                'type': 'BuildResult',
+                'buildResultId': '<default>'
+            }
 
     def _check_path(self, app):
         if app.get('path'):

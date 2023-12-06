@@ -4,21 +4,27 @@
 # --------------------------------------------------------------------------------------------
 
 # pylint: disable=unused-argument, logging-format-interpolation, protected-access, wrong-import-order, too-many-lines
-from .base_transformer import Transformer
+from .base_transformer import PCFToBicepAppTransformer, BicepResourceType
 
 from knack.log import get_logger
 
 logger = get_logger(__name__)
 
-class PublicEndpointTransformer(Transformer):
-    def _pcf_to_bicep(self, input, output, **__):
-        for app in input.get('applications', []):
-            if app.get('no-route', True):
-                resource = output.find('Microsoft.AppPlatform/Spring/Apps', app.get('name', ''))
-                if not resource:
-                    raise KeyError(f'Cannot find App resource {app.get("name")} in Bicep resources')
-                resource.put_properties('public', True)
+class PublicEndpointTransformer(PCFToBicepAppTransformer):
+    @property
+    def _pcf_path(self):
+        return 'no-route' 
 
-    # do nothing for violation check
-    def _check_pcf_to_bicep_violation(self, *_, **__):
-        pass
+    @property
+    def _bicep_path(self):
+        return 'public'
+
+    @property
+    def _bicep_resource_type(self):
+        return BicepResourceType.App.value
+
+    def _convert_pcf_value_to_bicep_value(self, value):
+        if value: # if no-route is True, do nothing, else expose
+            return None
+        else:
+            return True

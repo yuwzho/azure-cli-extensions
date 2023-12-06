@@ -41,12 +41,13 @@ There is a roundtrip test against folder `src\spring\azext_spring\tests\latest\p
 1. You can  add your input PCF yaml as `<some-specific-name>.yml` and expected bicep file in `<some-specifc-name>.bicep` under this folder.
 1. Git stage these files
 1. Run `azdev test spring.test_asa_import_manifest --discover`
+1. If the test failed, there is a error message to suggest you run the `az spring import-manifest -s <source> -d <dest>`. Copy that command and run it.
+1. Check the `<some-specifc-name>.bicep` git diff to see the difference between the expectation and actual.
 
 # Contribution
 If you want to map a value in PCF manifest to Bicep resource file, 
-1. You can reference the `ResourceRequestTransformer` to map the `cpu` `memory` to `Deployment.properties.deploymentSettings.resourceRequests` to create your own transformer.
+1. You can reference the `_resource_request_transformer.py` to map the `cpu` `memory` to `deployment.properties.deploymentSettings.resourceRequests` to create your own transformer.
 2. Add the Transformer to `transformer_loader`
 
 # TODOs
 - Warning on properies on PCF manifest but not processed.
-- [Optional] Can abstract the get and `put_properties`? The transformer can just fulfill the source property and dest property with 2 string.

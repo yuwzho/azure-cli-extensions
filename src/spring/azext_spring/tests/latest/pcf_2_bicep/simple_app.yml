@@ -10,6 +10,6 @@ applications:
     image: mcr.microsoft.com/azurespringapps/samples/hello-world:0.0.1
 - name: smallapp
   <<: *defaults
-  no-route: False
+  no-route: True
   memory: 512M
   path: /fake/path

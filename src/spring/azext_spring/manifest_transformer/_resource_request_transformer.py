@@ -7,44 +7,75 @@
 
 from knack.log import get_logger
 
-from .base_transformer import Transformer
+from .base_transformer import PCFToBicepAppTransformer, BicepResourceType
 
 logger = get_logger(__name__)
 
-class ResourceRequestTransformer(Transformer):
+class CPUResourceRequestTransformer(PCFToBicepAppTransformer):
+    @property
+    def _pcf_path(self):
+        return 'cpu' 
 
-    def _pcf_to_bicep(self, input, output, **__):
-        for app in input.get('applications', []):
-            resource = output.find('Microsoft.AppPlatform/Spring/Apps/Deployments', app.get('name', ''))
-            if not resource:
-                raise KeyError(f'Cannot find deployment resource {app.get("name")} in Bicep resources')
-            resource.put_properties('deploymentSettings.resourceRequests', {
-                'cpu': app.get('cpu', '1'),
-                'memory': self._convert_memory(app.get('memory', '1G'))
-            })
-            resource.put_additional_properties('sku', {
-                'tier': 'Enterprise',
-                'name': 'E0',
-                'capacity': app.get('instances', 1)
-            })
+    @property
+    def _bicep_path(self):
+        return 'deploymentSettings.resourceRequests.cpu'
 
-    def _check_pcf_to_bicep_violation(self, input, **__):
-        for app in input.get('applications', []):
-            self._check_cpu(app.get('name'), app.get('cpu'))
-            self._check_memory(app.get('name'), app.get('memory'))
-            self._check_instance_count(app.get('name'), app.get('instances'))
-
-    def _convert_memory(self, memory):
-        return f'{memory}i'
-
-    def _check_cpu(self, name, cpu):
+    @property
+    def _bicep_resource_type(self):
+        return BicepResourceType.Deployment.value
+    
+    def _convert_pcf_value_to_bicep_value(self, value):
+        return value or '1'
+    
+    def _check_app_violation(self, app, cpu):
         if not cpu or cpu < 0:
-            logger.warning(f'Invalid CPU value for app {name}. Expect a positive integer. Setting it to 1.')
+            logger.warning(f'Invalid CPU value for app {app.get("name")}. Expect a positive integer. Setting it to 1.')
+  
 
-    def _check_memory(self, name, memory):
+class MemoryResourceRequestTransformer(PCFToBicepAppTransformer):
+    @property
+    def _pcf_path(self):
+        return 'memory' 
+
+    @property
+    def _bicep_path(self):
+        return 'deploymentSettings.resourceRequests.memory'
+
+    @property
+    def _bicep_resource_type(self):
+        return BicepResourceType.Deployment.value
+
+    def _convert_pcf_value_to_bicep_value(self, value):
+        return '{}i'.format(value or '1G')
+
+    def _check_app_violation(self, app, memory):
         if not memory:
-            logger.warning(f'Invalid memory value for app {name}. Expect a string. Setting it to 1Gi.')
+            logger.warning(f'Invalid memory value for app {app.get("name")}. Expect a string. Setting it to 1Gi.')
 
-    def _check_instance_count(self, name, instance):
+
+class SkuCapacityTransformer(PCFToBicepAppTransformer):
+    @property
+    def _pcf_path(self):
+        return 'instances' 
+
+    @property
+    def _bicep_path(self):
+        return 'sku.capacity'
+
+    @property
+    def _bicep_resource_type(self):
+        return BicepResourceType.Deployment.value
+
+    def _add_to_bicep(self, resource, value):
+        resource.put_additional_properties('sku', {
+            'tier': 'Enterprise',
+            'name': 'E0',
+            'capacity': value
+        })
+
+    def _convert_pcf_value_to_bicep_value(self, value):
+        return value or 1
+
+    def _check_app_violation(self, app, instance):
         if not instance or instance < 0:
-            logger.warning(f'Invalid instances value for app {name}. Expect a positive integer. Setting it to 1.')
+            logger.warning(f'Invalid instances value for app {app.get("name")}. Expect a positive integer. Setting it to 1.')
