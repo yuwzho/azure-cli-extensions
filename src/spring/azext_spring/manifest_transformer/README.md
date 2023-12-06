@@ -19,10 +19,10 @@ classDiagram
    pcf_loader: +yaml load()
    Transformer --> BicepFile
    BicepFile o-- BicepResource
-   AppTransformer --|> Transformer
-   ResourceRequestTransformer --|> Transformer
-   PublicEndpointTransformer --|> Transformer
-
+   PCFToBicepAppTransformer ..|> Transformer
+   AppTransformer --|> PCFToBicepAppTransformer
+   ResourceRequestTransformer --|> PCFToBicepAppTransformer
+   PublicEndpointTransformer --|> PCFToBicepAppTransformer
 
    class BicepFile {
     +append()
