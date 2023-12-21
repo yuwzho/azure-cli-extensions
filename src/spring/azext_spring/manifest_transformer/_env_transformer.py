@@ -12,6 +12,10 @@ logger = get_logger(__name__)
 
 class EnvTransformer(PCFToBicepAppTransformer):
     @property
+    def parsable_attributes(self):
+        return ['env'] 
+
+    @property
     def _pcf_path(self):
         return 'env' 
 

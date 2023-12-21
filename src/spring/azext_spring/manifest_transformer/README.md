@@ -53,4 +53,4 @@ If you want to map a value in PCF manifest to Bicep resource file,
 Sample commit https://github.com/yuwzho/azure-cli-extensions/commit/a2aedb2e6f137a9852660fead746376b4f138f0e
 
 # TODOs
-- Warning on properies on PCF manifest but not processed.
+- Transform parameter files

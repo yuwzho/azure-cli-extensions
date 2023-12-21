@@ -128,6 +128,9 @@ class BicepFile:
 
     def get_spring(self):
         return self.resources[0]
+
+    def load(self, source):
+        pass
     
     def dump(self, dest):
         with open(dest, 'w') as f:

@@ -12,6 +12,10 @@ logger = get_logger(__name__)
 
 class PublicEndpointTransformer(PCFToBicepAppTransformer):
     @property
+    def parsable_attributes(self):
+        return ['no-route'] 
+
+    @property
     def _pcf_path(self):
         return 'no-route' 
 

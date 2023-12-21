@@ -30,6 +30,11 @@ class BicepResourceType(Enum):
 class PCFToBicepAppTransformer(Transformer):
     @property
     @abstractmethod
+    def parsable_attributes(self):
+        pass
+
+    @property
+    @abstractmethod
     def _pcf_path(self):
         pass
 
@@ -43,13 +48,13 @@ class PCFToBicepAppTransformer(Transformer):
     def _bicep_resource_type(self):
         pass
 
-    def _check_pcf_to_bicep_violation(self, input, **__):
-        for app in input.get('applications', []):
+    def _check_pcf_to_bicep_violation(self, pcf, **__):
+        for app in pcf.content.get('applications', []):
             value = self._find_value_from_pcf(app)
             self._check_app_violation(app, value)
 
-    def _pcf_to_bicep(self, input, output, **__):
-        for app in input.get('applications', []):
+    def _pcf_to_bicep(self, pcf, output, **__):
+        for app in pcf.content.get('applications', []):
             resource = output.find(self._bicep_resource_type, app.get('name', ''))
             if not resource:
                 raise KeyError(f'Cannot find {self._bicep_resource_type} resource {app.get("name")} in Bicep resources')

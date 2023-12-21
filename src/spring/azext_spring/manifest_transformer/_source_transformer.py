@@ -16,6 +16,10 @@ DOCKER_PASSWORD_ENV_KEY = 'CF_DOCKER_PASSWORD'
 
 class SourceTransformer(PCFToBicepAppTransformer):
     @property
+    def parsable_attributes(self):
+        return ['docker'] 
+
+    @property
     def _bicep_resource_type(self):
         return BicepResourceType.Deployment.value
 
@@ -23,9 +27,8 @@ class SourceTransformer(PCFToBicepAppTransformer):
     def _bicep_path(self):
         return 'source'
 
-    def _check_pcf_to_bicep_violation(self, input, **__):
-        for app in input.get('applications', []):
-            self._check_path(app)
+    def _check_pcf_to_bicep_violation(self, pcf, **__):
+        for app in pcf.content.get('applications', []):
             self._check_docker_password(app)
 
     def _find_value_from_pcf(self, app):
@@ -40,10 +43,6 @@ class SourceTransformer(PCFToBicepAppTransformer):
                 'type': 'BuildResult',
                 'buildResultId': '<default>'
             }
-
-    def _check_path(self, app):
-        if app.get('path'):
-            logger.error(f"App {app.get('name')} is deployed from local. Cannot convert to bicep.")
 
     def _check_docker_password(self, app):
         if app.get('docker', {}).get('username') and not os.getenv(DOCKER_PASSWORD_ENV_KEY):

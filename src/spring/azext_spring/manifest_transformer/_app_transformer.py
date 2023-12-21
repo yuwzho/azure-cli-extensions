@@ -10,9 +10,12 @@ from .base_transformer import Transformer
 from .bicep_resource import BicepResource
 
 class AppTransformer(Transformer):
+    @property
+    def parsable_attributes(self):
+        return ['name']
 
-    def _pcf_to_bicep(self, input, output, **__):
-        for app in input.get('applications', []):
+    def _pcf_to_bicep(self, pcf, output, **__):
+        for app in pcf.content.get('applications', []):
             spring = output.get_spring()
             app_resource = BicepResource(app.get('name'), 'Microsoft.AppPlatform/Spring/Apps', '2022-12-01', parent=spring)
             output.append(app_resource)
@@ -20,8 +23,8 @@ class AppTransformer(Transformer):
             deployment.properties['active'] = True
             output.append(deployment)
 
-    def _check_pcf_to_bicep_violation(self, input, **__):
-        for app in input.get('applications', []):
+    def _check_pcf_to_bicep_violation(self, pcf, **__):
+        for app in pcf.content.get('applications', []):
             self._check_app_name(app.get('name'))
     
     def _check_app_name(self, name):

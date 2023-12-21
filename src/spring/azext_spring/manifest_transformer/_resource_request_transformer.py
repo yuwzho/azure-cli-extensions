@@ -13,6 +13,10 @@ logger = get_logger(__name__)
 
 class CPUResourceRequestTransformer(PCFToBicepAppTransformer):
     @property
+    def parsable_attributes(self):
+        return ['cpu'] 
+
+    @property
     def _pcf_path(self):
         return 'cpu' 
 
@@ -34,6 +38,10 @@ class CPUResourceRequestTransformer(PCFToBicepAppTransformer):
 
 class MemoryResourceRequestTransformer(PCFToBicepAppTransformer):
     @property
+    def parsable_attributes(self):
+        return ['memory'] 
+
+    @property
     def _pcf_path(self):
         return 'memory' 
 
@@ -54,6 +62,10 @@ class MemoryResourceRequestTransformer(PCFToBicepAppTransformer):
 
 
 class SkuCapacityTransformer(PCFToBicepAppTransformer):
+    @property
+    def parsable_attributes(self):
+        return ['instances'] 
+
     @property
     def _pcf_path(self):
         return 'instances' 

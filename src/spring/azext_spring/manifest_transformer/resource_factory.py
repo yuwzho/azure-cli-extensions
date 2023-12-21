@@ -5,9 +5,8 @@
 
 # pylint: disable=unused-argument, logging-format-interpolation, protected-access, wrong-import-order, too-many-lines
 
-import yaml
+from .pcf_resource import PCFFile
 
-class PCF_Loader():
-    def load(self, source):
-        with open(source, 'r') as file:
-            return yaml.safe_load(file)
+def get_resource(manifest_type):
+    if manifest_type.lower() == 'pcf':
+        return PCFFile
