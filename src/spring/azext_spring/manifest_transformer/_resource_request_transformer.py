@@ -33,7 +33,7 @@ class CPUResourceRequestTransformer(PCFToBicepAppTransformer):
     
     def _check_app_violation(self, app, cpu):
         if not cpu or cpu < 0:
-            logger.warning(f'Invalid CPU value for app {app.get("name")}. Expect a positive integer. Setting it to 1.')
+            logger.warning(f'Invalid CPU value for app {app.name}. Expect a positive integer. Setting it to 1.')
   
 
 class MemoryResourceRequestTransformer(PCFToBicepAppTransformer):
@@ -58,7 +58,7 @@ class MemoryResourceRequestTransformer(PCFToBicepAppTransformer):
 
     def _check_app_violation(self, app, memory):
         if not memory:
-            logger.warning(f'Invalid memory value for app {app.get("name")}. Expect a string. Setting it to 1Gi.')
+            logger.warning(f'Invalid memory value for app {app.name}. Expect a string. Setting it to 1Gi.')
 
 
 class SkuCapacityTransformer(PCFToBicepAppTransformer):
@@ -90,4 +90,4 @@ class SkuCapacityTransformer(PCFToBicepAppTransformer):
 
     def _check_app_violation(self, app, instance):
         if not instance or instance < 0:
-            logger.warning(f'Invalid instances value for app {app.get("name")}. Expect a positive integer. Setting it to 1.')
+            logger.warning(f'Invalid instances value for app {app.name}. Expect a positive integer. Setting it to 1.')

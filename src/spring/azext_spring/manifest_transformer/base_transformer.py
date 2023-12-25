@@ -49,28 +49,22 @@ class PCFToBicepAppTransformer(Transformer):
         pass
 
     def _check_pcf_to_bicep_violation(self, pcf, **__):
-        for app in pcf.content.get('applications', []):
+        for app in pcf.applications:
             value = self._find_value_from_pcf(app)
             self._check_app_violation(app, value)
 
     def _pcf_to_bicep(self, pcf, output, **__):
-        for app in pcf.content.get('applications', []):
-            resource = output.find(self._bicep_resource_type, app.get('name', ''))
+        for app in pcf.applications:
+            resource = output.find(self._bicep_resource_type, app.name)
             if not resource:
-                raise KeyError(f'Cannot find {self._bicep_resource_type} resource {app.get("name")} in Bicep resources')
+                raise KeyError(f'Cannot find {self._bicep_resource_type} resource {app.name} in Bicep resources')
             value = self._find_value_from_pcf(app)
             value = self._convert_pcf_value_to_bicep_value(value)
             if value:
                 self._add_to_bicep(resource, value)
-    
+
     def _find_value_from_pcf(self, app):
-        if not self._pcf_path:
-            return None
-        keys = self._pcf_path.split('.')
-        tmp = app
-        for k in keys[:-1]:
-            tmp = tmp.get(k, {})
-        return tmp.get(keys[-1], None)
+        return app.find_value(self._pcf_path)
 
     def _convert_pcf_value_to_bicep_value(self, pcf_value):
         return pcf_value

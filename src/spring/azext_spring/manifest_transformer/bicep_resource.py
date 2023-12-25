@@ -122,6 +122,11 @@ class BicepFile:
             raise AttributeError('resource should be type BicepResource')
         self.resources.append(resource)
 
+    def add_parameter(self, param):
+        if type(param) is not BicepParam:
+            raise AttributeError('param should be type BicepParam')
+        self.params.append(param)
+
     def find(self, resource_type, resource_name):
         target = _format_resource_name(resource_type, resource_name)
         return next(x for x in self.resources if x.name == target)
@@ -129,7 +134,8 @@ class BicepFile:
     def get_spring(self):
         return self.resources[0]
 
-    def load(self, source):
+    @classmethod
+    def load(self, *_):
         pass
     
     def dump(self, dest):

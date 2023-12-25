@@ -28,7 +28,7 @@ class SourceTransformer(PCFToBicepAppTransformer):
         return 'source'
 
     def _check_pcf_to_bicep_violation(self, pcf, **__):
-        for app in pcf.content.get('applications', []):
+        for app in pcf.applications:
             self._check_docker_password(app)
 
     def _find_value_from_pcf(self, app):
@@ -45,15 +45,15 @@ class SourceTransformer(PCFToBicepAppTransformer):
             }
 
     def _check_docker_password(self, app):
-        if app.get('docker', {}).get('username') and not os.getenv(DOCKER_PASSWORD_ENV_KEY):
-            logger.error(f'App {app.get("name")} is deployed with docker image with authentication,' 
+        if app.find_value('docker.username') and not os.getenv(DOCKER_PASSWORD_ENV_KEY):
+            logger.error(f'App {app.name} is deployed with docker image with authentication,' 
                          'but there is no docker registry password set through environment variable {DOCKER_PASSWORD_ENV_KEY}.')
 
     def _get_docker(self, app):
-        docker = app.get('docker')
+        docker = app.find_value('docker')
         if not docker:
             return
-        image = app.get('docker').get('image')
+        image = docker.get('image')
         if not image:
             return
         registry, image_with_tag = image.split('/', 1)

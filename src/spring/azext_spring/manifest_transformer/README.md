@@ -4,9 +4,8 @@ The `manifest_transformer` is the main entry of the transformer. It loads the tr
 
 ```mermaid
 classDiagram
-   manifest_transformer -->  pcf_loader
-   pcf_loader --> yaml
-   Transformer --> yaml
+   manifest_transformer -->  pcf_source
+   Transformer --> pcf_source
    Transformer: +process()
    Transformer: +check_violation()
    Transformer: +_pcf_to_bicep(PCF_manifest, BicepResource)
@@ -16,7 +15,7 @@ classDiagram
    transformer_loader --> ResourceRequestTransformer
    transformer_loader --> PublicEndpointTransformer
    transformer_loader: +get_transformers()
-   pcf_loader: +yaml load()
+   pcf_source: load()
    Transformer --> BicepFile
    BicepFile o-- BicepResource
    PCFToBicepAppTransformer ..|> Transformer
