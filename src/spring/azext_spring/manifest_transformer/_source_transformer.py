@@ -68,8 +68,10 @@ class SourceTransformer(PCFToBicepAppTransformer):
             return
         docker_dict = self._parse_image(image)
         if docker.get('username'):
+            username = self._pcf_param_ref_to_bicep_param_ref(docker.get('username')) \
+                        if isinstance(docker.get('username', PCFParamRef)) else docker.get('username')
             docker_dict['imageRegistryCredential'] = {
-                'username': docker.get('username'),
+                'username': username,
                 'password': os.getenv(DOCKER_PASSWORD_ENV_KEY)
             }
         return docker_dict
