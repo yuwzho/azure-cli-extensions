@@ -53,3 +53,5 @@ Sample commit https://github.com/yuwzho/azure-cli-extensions/commit/a2aedb2e6f13
 
 # TODOs
 - Transform parameter files
+- Duplicate Parameter
+- App name with parameter

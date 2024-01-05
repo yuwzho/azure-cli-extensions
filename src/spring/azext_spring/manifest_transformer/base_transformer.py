@@ -6,6 +6,12 @@
 # pylint: disable=unused-argument, logging-format-interpolation, protected-access, wrong-import-order, too-many-lines
 from enum import Enum
 from abc import abstractmethod
+from .pcf_resource import PCFParamRef
+from .bicep_resource import BicepParam, BicepParamRef
+
+from knack.log import get_logger
+
+logger = get_logger(__name__)
 
 class Transformer:
     def __init__(self, source_type, dest_type):
@@ -51,7 +57,8 @@ class PCFToBicepAppTransformer(Transformer):
     def _check_pcf_to_bicep_violation(self, pcf, **__):
         for app in pcf.applications:
             value = self._find_value_from_pcf(app)
-            self._check_app_violation(app, value)
+            if not isinstance(value, PCFParamRef):
+                self._check_app_violation(app, value)
 
     def _pcf_to_bicep(self, pcf, output, **__):
         for app in pcf.applications:
@@ -60,6 +67,8 @@ class PCFToBicepAppTransformer(Transformer):
                 raise KeyError(f'Cannot find {self._bicep_resource_type} resource {app.name} in Bicep resources')
             value = self._find_value_from_pcf(app)
             value = self._convert_pcf_value_to_bicep_value(value)
+            for x in self._get_parameters(value) or []:
+                output.add_parameter(x)
             if value:
                 self._add_to_bicep(resource, value)
 
@@ -67,7 +76,26 @@ class PCFToBicepAppTransformer(Transformer):
         return app.find_value(self._pcf_path)
 
     def _convert_pcf_value_to_bicep_value(self, pcf_value):
+        if isinstance(pcf_value, PCFParamRef):
+            return self._pcf_param_ref_to_bicep_param_ref(pcf_value)
+        if isinstance(pcf_value, dict):
+            for k, v in pcf_value.items():
+                pcf_value[k] = self._convert_pcf_value_to_bicep_value(v)
         return pcf_value
+
+    def _get_parameters(self, bicep_value):
+        if isinstance(bicep_value, BicepParamRef):
+            return [x for x in bicep_value.contents if isinstance(x, BicepParam)]
+        param = []
+        if isinstance(bicep_value, dict):
+            for _, v in bicep_value.items():
+                param.extend(self._get_parameters(v))
+        return param
+
+    def _pcf_param_ref_to_bicep_param_ref(self, pcf_param_ref, bicep_param_type='string'):
+        contents = [x if isinstance(x, str) else BicepParam(x.value, bicep_param_type) \
+                    for x in pcf_param_ref.contents]
+        return BicepParamRef(*contents)
 
     def _add_to_bicep(self, resource, value):
         resource.put_properties(self._bicep_path, value)

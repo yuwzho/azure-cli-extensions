@@ -8,6 +8,7 @@
 from knack.log import get_logger
 
 from .base_transformer import PCFToBicepAppTransformer, BicepResourceType
+from .pcf_resource import PCFParamRef
 
 logger = get_logger(__name__)
 
@@ -29,6 +30,8 @@ class CPUResourceRequestTransformer(PCFToBicepAppTransformer):
         return BicepResourceType.Deployment.value
     
     def _convert_pcf_value_to_bicep_value(self, value):
+        if isinstance(value, PCFParamRef):
+            return self._pcf_param_ref_to_bicep_param_ref(value)
         return value or '1'
     
     def _check_app_violation(self, app, cpu):
@@ -54,6 +57,8 @@ class MemoryResourceRequestTransformer(PCFToBicepAppTransformer):
         return BicepResourceType.Deployment.value
 
     def _convert_pcf_value_to_bicep_value(self, value):
+        if isinstance(value, PCFParamRef):
+            return self._pcf_param_ref_to_bicep_param_ref(value)
         return '{}i'.format(value or '1G')
 
     def _check_app_violation(self, app, memory):
@@ -86,6 +91,8 @@ class SkuCapacityTransformer(PCFToBicepAppTransformer):
         })
 
     def _convert_pcf_value_to_bicep_value(self, value):
+        if isinstance(value, PCFParamRef):
+            return self._pcf_param_ref_to_bicep_param_ref(value, 'int')
         return value or 1
 
     def _check_app_violation(self, app, instance):

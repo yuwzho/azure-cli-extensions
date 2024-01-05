@@ -11,7 +11,7 @@ from knack.log import get_logger
 logger = get_logger(__name__)
 
 def _format_resource_name(resource_type, resource_name):
-    if isinstance(resource_name, BicepParam):
+    if isinstance(resource_name, BicepParamRef):
         resource_name = 'resource'
     return '{}_{}'.format(resource_type.split('/')[-1].lower(), resource_name.replace('-', '_'))
 
@@ -24,6 +24,8 @@ def _dict_to_str(d, indent=''):
         if isinstance(v, dict):
             new_str = _dict_to_str(v, indent + '  ')
             items.append(indent + k + ' : {\n' + new_str + '\n' + indent + '}')
+        elif isinstance(v, BicepParamRef):
+            items.append(f"{indent}{k} : {str(v)}")
         elif isinstance(v, bool):
             items.append(f"{indent}{k} : {str(v).lower()}")
         elif isinstance(v, str):
@@ -77,8 +79,8 @@ class BicepResource:
     {'}'}"""
 
     def _get_resource_name(self):
-        if isinstance(self.resource_name, BicepParam):
-            return f'name: {self.resource_name.name}'
+        if isinstance(self.resource_name, BicepParamRef):
+            return f'name: {str(self.resource_name)}'
         return 'name: ' + '\'' + self.resource_name + '\''
 
     def __str__(self):
@@ -105,6 +107,19 @@ class BicepParam:
             return f'@description(\'{self.description}\')\n{param}\n'
         return param
 
+
+class BicepParamRef:
+    def  __init__(self, *contents):
+        self.contents = contents
+        self.params = [x for x in contents if isinstance(x, BicepParam)]
+
+    def __str__(self):
+        if len(self.contents) == 1 and isinstance(self.contents[0], BicepParam):
+            return self.contents[0].name
+        logger.warning(','.join(str(x) for x in self.contents))
+        return f"'{''.join(x if isinstance(x, str) else '${' + x.name + '}' for x in self.contents)}'"
+
+
 class BicepFile:
     def __init__(self):
         self.params = []
@@ -113,7 +128,8 @@ class BicepFile:
 
     def _init_spring(self):
         param = BicepParam('name', 'string', 'Existing Azure Spring Apps instance name.')
-        resource = BicepResource(param, 'Microsoft.AppPlatform/Spring', '2022-12-01', is_existing=True)
+        resource = BicepResource(BicepParamRef(BicepParam('name', 'string', 'Existing Azure Spring Apps instance name.')),
+                                 'Microsoft.AppPlatform/Spring', '2022-12-01', is_existing=True)
         self.resources.append(resource)
         self.params.append(param)
 
@@ -141,7 +157,7 @@ class BicepFile:
     def dump(self, dest):
         with open(dest, 'w') as f:
             for x in self.params:
-                f.writelines(str(x))
+                f.writelines(str(x) + '\n')
             for x in self.resources:
                 f.writelines(str(x))
         logger.warning(f'Run `az deployment group create --template-file {dest} -g <Your-Resource-Group>` to deploy')

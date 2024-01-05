@@ -6,6 +6,7 @@ defaults: &defaults
 applications:
 - name: bigapp
   <<: *defaults
+  instances: 1
   docker:
     image: mcr.microsoft.com/azurespringapps/samples/hello-world:0.0.1
 - name: smallapp
@@ -16,3 +17,20 @@ applications:
   env:
     foo: bar
     bas: baz
+- name: notreadyforvariable
+  no-route: ((has_route))
+  memory: ((memory))
+  docker:
+    image: ((image))
+  env:
+    foo: ((bar))
+  cpu: ((cpu))
+  instances: ((instances))
+- name: imageapp1
+  <<: *defaults
+  docker:
+    image: ((server))/((image))
+- name: imageapp2
+  <<: *defaults
+  docker:
+    image: ((server))((image))
