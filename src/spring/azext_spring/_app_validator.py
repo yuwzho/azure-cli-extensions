@@ -105,13 +105,13 @@ def validate_deloy_path(cmd, namespace):
     if all(not x for x in arguments):
         raise InvalidArgumentValueError('One of --artifact-path, --source-path, --container-image must be provided.')
     _deploy_path_mutual_exclusive(arguments)
-    _validate_container_registry(cmd, namespace)
+    # _validate_container_registry(cmd, namespace)
 
 
 def validate_deloyment_create_path(cmd, namespace):
     arguments = [namespace.artifact_path, namespace.source_path, namespace.container_image]
     _deploy_path_mutual_exclusive(arguments)
-    _validate_container_registry(cmd, namespace)
+    # _validate_container_registry(cmd, namespace)
 
 
 def _deploy_path_mutual_exclusive(args):

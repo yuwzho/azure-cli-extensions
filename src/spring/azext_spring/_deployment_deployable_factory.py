@@ -7,6 +7,7 @@
 from knack.log import get_logger
 from azure.cli.core.azclierror import InvalidArgumentValueError
 from ._deployment_uploadable_factory import FileUpload, FolderUpload
+from ._buildservices_factory import get_build_service
 from azure.core.exceptions import HttpResponseError
 from time import sleep
 from ._stream_utils import stream_logs
@@ -44,8 +45,6 @@ class EmptyDeployableBuilder():
             return 'BuildResult'
         if runtime_version and runtime_version.lower() == 'netcore_31':
             return 'NetCoreZip'
-        if _get_file_ext(artifact_path).lower() == ".war":
-            return "War"
         return 'Jar'
 
 
@@ -74,6 +73,13 @@ class UploadDeployableBuilder(EmptyDeployableBuilder):
 
     def _get_uploader(self, upload_url=None):
         return FileUpload(upload_url=upload_url, cli_ctx=self.cmd.cli_ctx)
+
+    def get_source_type(self, runtime_version=None, artifact_path=None, **_):
+        if runtime_version and runtime_version.lower() == 'netcore_31':
+            return 'NetCoreZip'
+        if _get_file_ext(artifact_path).lower() == ".war":
+            return "War"
+        return 'Jar'
 
 
 class SourceBuildDeployableBuilder(UploadDeployableBuilder):
@@ -149,7 +155,7 @@ def deployable_selector(**kwargs):
         # Nothing will be deployed, just return the original deployable path
         return EmptyDeployableBuilder(**kwargs)
 
-    if sku.name == 'E0':
+    if sku.name == 'E0' and get_build_service(kwargs.get('client'), kwargs.get('resource_group'), kwargs.get('service'), 'default'):
         return BuildServiceDeployableBuilder(**kwargs)
     if source_path:
         return SourceBuildDeployableBuilder(**kwargs)

@@ -20,6 +20,13 @@ from ._log_stream import LogStream
 logger = get_logger(__name__)
 
 
+def get_build_service(client, resource_group, service, name):
+    try:
+        return client.build_service.get_build_service(resource_group, service, name)
+    except Exception as ex:
+        logger.info('No build service {}/{}/{} found : {}'.format(resource_group, service, name, ex))
+
+
 class BuildService:
     def __init__(self, cmd, client, resource_group, service):
         self.cmd = cmd
@@ -30,6 +37,9 @@ class BuildService:
         self.log_stream = None
         self.progress_bar = None
         self.terminated_state = ['Succeeded', 'Failed', 'Deleting']
+
+    def get(self):
+        return get_build_service(self.client, self.resource_group, self.service, self.name)
 
     def get_total_steps(self):
         return 4
