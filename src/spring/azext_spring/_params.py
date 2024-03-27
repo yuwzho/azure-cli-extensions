@@ -28,7 +28,7 @@ from ._validators_enterprise import (only_support_enterprise, validate_builder_r
                                      validate_api_portal_instance_count,
                                      validate_buildpack_binding_exist, validate_buildpack_binding_not_exist,
                                      validate_buildpack_binding_properties, validate_buildpack_binding_secrets,
-                                     validate_build_env, validate_target_module, validate_runtime_version,
+                                     validate_build_env, validate_target_module,
                                      validate_acs_ssh_or_warn, validate_refresh_interval,
                                      validate_apm_properties, validate_apm_secrets,
                                      validate_apm_not_exist, validate_apm_update, validate_apm_reference,
@@ -505,7 +505,7 @@ def load_arguments(self, _):
     for scope in ['spring app update', 'spring app deployment create', 'spring app deploy', 'spring app create']:
         with self.argument_context(scope) as c:
             c.argument('runtime_version', arg_type=get_enum_type(SupportedRuntimeValue),
-                       help='Runtime version of used language', validator=validate_runtime_version)
+                       help='Runtime version of used language')
             c.argument('jvm_options', type=str, validator=validate_jvm_options,
                        help="A string containing jvm options, use '=' instead of ' ' for this argument to avoid bash parse error, eg: --jvm-options='-Xms1024m -Xmx2048m'")
             c.argument('env', env_type)
